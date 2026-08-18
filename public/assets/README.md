@@ -1,0 +1,1 @@
+Assets visuels officiels de la mascotte Onyx. Les images sont intégrées à partir de la planche de design validée.

@@ -1,10 +1,10 @@
-// ONYX FIT v0.1 — visuels officiels Onyx validés.
+// ONYX FIT v0.1 — temporary switch to validated ONYX MASTER board assets.
 const BASE='/ONYX-FIT-V0.1/assets/';
 function image(kind,alt='Onyx'){
   const i=document.createElement('img');
-  i.src=BASE+(kind==='checkin'?'onyx-coach.svg':'onyx-official.svg');
+  i.src=BASE+'onyx-master-board.jpg';
   i.alt=alt;
-  i.className='onyx-art '+kind;
+  i.className='onyx-art '+kind+' onyx-master-board';
   return i;
 }
 function upgrade(root=document){
@@ -16,12 +16,9 @@ function upgrade(root=document){
     else if(box.closest('#onboardingScreen')) kind='onboarding';
     else if(box.closest('#workoutScreen')) kind='workout';
     else if(box.closest('#foodScreen')) kind='nutrition';
-    box.innerHTML='';
-    box.appendChild(image(kind));
-    box.dataset.onyxUpgraded='1';
+    box.innerHTML=''; box.appendChild(image(kind)); box.dataset.onyxUpgraded='1';
   });
 }
 const obs=new MutationObserver(()=>upgrade());
 obs.observe(document.documentElement,{subtree:true,childList:true});
-window.addEventListener('DOMContentLoaded',()=>upgrade());
-setTimeout(()=>upgrade(),50);
+window.addEventListener('DOMContentLoaded',()=>upgrade()); setTimeout(()=>upgrade(),50);

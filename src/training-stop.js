@@ -20,10 +20,13 @@ function showConfirm(){
   const modal=document.createElement('div');
   modal.id='stopWorkoutConfirm';
   modal.className='stop-confirm';
-  modal.innerHTML=`<div class="stop-confirm-card" role="dialog" aria-modal="true" aria-labelledby="stopTitle"><div class="eyebrow">ARRÊTER LA SÉANCE</div><h2 id="stopTitle">Tu veux vraiment arrêter ?</h2><p>La séance en cours sera abandonnée et les séries non terminées ne seront pas ajoutées à l’historique.</p><div class="stop-confirm-actions"><button class="btn safe" id="cancelStopWorkout">CONTINUER</button><button class="btn danger" id="confirmStopWorkout">ARRÊTER</button></div></div>`;
+  modal.innerHTML=`<div class="stop-confirm-card" role="dialog" aria-modal="true" aria-labelledby="stopTitle"><div class="eyebrow">ARRÊTER LA SÉANCE</div><h2 id="stopTitle">Tu veux vraiment arrêter ?</h2><p>Les séries déjà réalisées, le temps passé et les calories dépensées jusque-là seront conservés. Seule la partie non effectuée sera abandonnée.</p><div class="stop-confirm-actions"><button class="btn safe" id="cancelStopWorkout">CONTINUER</button><button class="btn danger" id="confirmStopWorkout">ARRÊTER</button></div></div>`;
   document.body.appendChild(modal);
   $('#cancelStopWorkout').onclick=()=>modal.remove();
-  $('#confirmStopWorkout').onclick=()=>{modal.remove();window.location.reload()};
+  $('#confirmStopWorkout').onclick=()=>{
+    try{window.OnyxTrainingDurable?.savePartial?.()}catch{}
+    modal.remove();window.location.reload();
+  };
   modal.onclick=e=>{if(e.target===modal)modal.remove()};
 }
 

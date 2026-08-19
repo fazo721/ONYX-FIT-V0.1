@@ -2,7 +2,7 @@
 const BASE='/ONYX-FIT-V0.1/assets/';
 const COACH=BASE+'972F4DDC-2B10-4407-9FF0-48CD21DB0815.png';
 const WORKOUT=BASE+'DB30F8FC-5142-4C84-852C-FA768EECAEA2.png';
-const RECOVERY=BASE+'89645747-BED2-494F-8E62-86950E394028.png';
+const RECOVERY=BASE+'18FDB08E-B760-44C6-8B36-2884EE6C707E.png';
 
 function addWorkoutCompanion(){
   const card=document.querySelector('#workoutScreen .pro-exercise');
@@ -36,7 +36,7 @@ function fixRecovery(){
     host.appendChild(img);
   }
 
-  if(!img.src.endsWith('/assets/89645747-BED2-494F-8E62-86950E394028.png')) img.src=RECOVERY;
+  if(!img.src.endsWith('/assets/18FDB08E-B760-44C6-8B36-2884EE6C707E.png')) img.src=RECOVERY;
   img.style.cssText='display:block;width:min(270px,64vw);height:min(270px,64vw);max-width:270px;max-height:270px;object-fit:contain;object-position:center;pointer-events:none;margin:0 auto;filter:drop-shadow(0 10px 24px #ff5a0022);';
   host.style.cssText='display:grid;place-items:center;margin:10px auto 4px;overflow:visible;max-width:300px;pointer-events:none;';
 }

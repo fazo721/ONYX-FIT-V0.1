@@ -1,0 +1,3 @@
+const $=s=>document.querySelector(s);
+function installScanButton(){const input=$('#nutBarcode');if(!input||$('#nutScanBtn'))return;const card=input.closest('.card');if(!card)return;const btn=document.createElement('button');btn.id='nutScanBtn';btn.type='button';btn.className='btn primary';btn.textContent='📷 SCANNER';btn.style.marginTop='10px';btn.style.width='100%';const results=$('#nutBarcodeResult');if(results)results.before(btn);else card.appendChild(btn)}
+const obs=new MutationObserver(()=>installScanButton());obs.observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('DOMContentLoaded',()=>setTimeout(installScanButton,250));setTimeout(installScanButton,500);

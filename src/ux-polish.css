@@ -1,0 +1,16 @@
+/* ONYX FIT — interactive mobile polish */
+:root{--ease:spring(1,1,1,1)}
+html{scroll-behavior:smooth}body{-webkit-tap-highlight-color:transparent}
+button,.btn,.chip,.card,.metric,.session-choice{transition:transform .16s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease,opacity .2s ease}
+button:active,.btn:active,.chip:active,.session-choice:active{transform:scale(.965)}
+.card{animation:onyxCardIn .32s ease both}.screen.active{animation:onyxScreenIn .25s ease both}
+@keyframes onyxScreenIn{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes onyxCardIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bottom button{position:relative;transition:color .2s ease,transform .18s ease}.bottom button:active{transform:translateY(2px) scale(.92)}.bottom button.active:after{content:'';position:absolute;top:4px;width:24px;height:3px;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--orange2));box-shadow:0 0 12px #ff650088;animation:tabPop .28s ease}@keyframes tabPop{from{transform:scaleX(.25);opacity:0}to{transform:scaleX(1);opacity:1}}
+.metric:active,.foodRow:active,.row:active{background:#14100e}.chip.on{box-shadow:0 0 0 1px #ff6a0020,0 6px 20px #ff5a0014}
+.progress i{transition:width .5s cubic-bezier(.2,.8,.2,1)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#ff6500;box-shadow:0 0 0 3px #ff650018;background:#0d0b0a}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#ff7a25 50%),linear-gradient(135deg,#ff7a25 50%,transparent 50%);background-position:calc(100% - 17px) 19px,calc(100% - 12px) 19px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+.onyx-ripple{position:fixed;width:12px;height:12px;border-radius:50%;background:#ff6a0055;pointer-events:none;z-index:99999;transform:translate(-50%,-50%) scale(0);animation:onyxRipple .48s ease-out forwards}@keyframes onyxRipple{to{transform:translate(-50%,-50%) scale(7);opacity:0}}
+.onyx-toast{position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));z-index:900;transform:translate(-50%,18px);opacity:0;background:#17100df5;border:1px solid #ff6a0066;color:#fff;border-radius:999px;padding:10px 15px;font-size:.78rem;font-weight:800;box-shadow:0 12px 35px #000b;transition:.25s ease;white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}.onyx-toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

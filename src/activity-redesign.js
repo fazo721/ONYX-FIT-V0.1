@@ -15,14 +15,27 @@ function read(){try{return JSON.parse(localStorage.getItem('onyx_v01')||'{}')||{
 function write(db){localStorage.setItem('onyx_v01',JSON.stringify(db));document.dispatchEvent(new CustomEvent('onyx:db-updated'))}
 function today(){return new Date().toISOString().slice(0,10)}
 function burnEstimate(type,min,weight){const met=TYPES.find(x=>x.name===type)?.met||5;return Math.max(0,Math.round(met*3.5*(+weight||80)/200*(+min||0)))}
-function todays(db){return (Array.isArray(db.activities)?db.activities:[]).filter(x=>x.date===today())}
+function dayActivities(db,date=today()){return (Array.isArray(db.activities)?db.activities:[]).filter(x=>x.date===date)}
 function activityIcon(type){return TYPES.find(x=>x.name===type)?.icon||'⚡'}
 function uid(){return crypto.randomUUID?.()||String(Date.now()+Math.random())}
 
-function historyHtml(db){
- const arr=todays(db).slice().reverse();
- if(!arr.length)return `<div class="activity-history-card empty"><b>Aucune activité aujourd’hui</b><span>Ta première activité apparaîtra ici.</span></div>`;
+function historyHtml(db,date=today()){
+ const arr=dayActivities(db,date).slice().reverse();
+ if(!arr.length)return `<div class="activity-history-card empty"><b>Aucune activité ce jour</b><span>Ta première activité apparaîtra ici.</span></div>`;
  return arr.map(x=>`<article class="activity-history-card"><button class="activity-delete" data-del-act="${x.id||''}" aria-label="Supprimer">⌫</button><div class="history-icon">${activityIcon(x.type)}</div><div class="history-main"><b>${x.type||'Activité'}</b><span>${x.time||''}</span></div><div class="history-foot"><span>◷ ${+x.duration||+x.minutes||0} min</span><strong>🔥 ${Math.round(+x.kcal||0)} kcal</strong></div></article>`).join('')
+}
+function fullHistoryHtml(db){
+ const arr=(Array.isArray(db.activities)?db.activities:[]).slice().sort((a,b)=>`${b.date||''}${b.time||''}`.localeCompare(`${a.date||''}${a.time||''}`));
+ if(!arr.length)return `<div class="history-sheet-empty">Aucune activité enregistrée.</div>`;
+ const groups={};arr.forEach(x=>{const d=x.date||'Sans date';(groups[d]??=[]).push(x)});
+ return Object.entries(groups).map(([date,items])=>`<section class="history-day"><h3>${date===today()?'Aujourd’hui':date}</h3>${items.map(x=>`<div class="history-row"><span class="history-row-icon">${activityIcon(x.type)}</span><div><b>${x.type||'Activité'}</b><small>${x.time||''}</small></div><strong>${+x.duration||+x.minutes||0} min</strong><em>${Math.round(+x.kcal||0)} kcal</em></div>`).join('')}</section>`).join('')
+}
+function openFullHistory(){
+ document.querySelector('.activity-history-modal')?.remove();
+ const db=read(),modal=document.createElement('div');modal.className='activity-history-modal';
+ modal.innerHTML=`<div class="activity-history-sheet"><div class="history-sheet-head"><div><span>⚡</span><div><b>Historique des activités</b><small>Toutes tes dépenses enregistrées</small></div></div><button type="button" class="history-sheet-close">×</button></div><div class="history-sheet-body">${fullHistoryHtml(db)}</div></div>`;
+ document.body.appendChild(modal);
+ const close=()=>modal.remove();modal.querySelector('.history-sheet-close').onclick=close;modal.addEventListener('click',e=>{if(e.target===modal)close()});
 }
 
 function render(){
@@ -45,19 +58,17 @@ function render(){
    <button class="activity-save" id="activitySave">＋ AJOUTER CETTE ACTIVITÉ</button>
   </section>
 
-  <section class="activity-history-wrap"><div class="activity-history-head"><div><i>⚡</i><b>HISTORIQUE DU JOUR</b></div><button type="button">VOIR TOUT ›</button></div><div class="activity-history" id="activityHistory">${historyHtml(db)}</div></section>
+  <section class="activity-history-wrap"><div class="activity-history-head"><div><i>⚡</i><b>HISTORIQUE DU JOUR</b></div><button type="button" id="activityHistoryAll">VOIR TOUT ›</button></div><div class="activity-history" id="activityHistory">${historyHtml(db)}</div></section>
  </div>`;
  bind();
 }
 
-function centerCardInCarousel(card){
- const track=$('.activity-types');if(!track||!card)return;
- const left=card.offsetLeft-(track.clientWidth-card.offsetWidth)/2;
- track.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+function centerCardInCarousel(card){const track=$('.activity-types');if(!track||!card)return;const left=card.offsetLeft-(track.clientWidth-card.offsetWidth)/2;track.scrollTo({left:Math.max(0,left),behavior:'smooth'})}
+function bindHistoryDelete(){
+ $$('[data-del-act]').forEach(b=>b.onclick=()=>{const db=read(),id=b.dataset.delAct;db.activities=(db.activities||[]).filter(x=>String(x.id)!==String(id));write(db);refresh()});
 }
-
 function bind(){
- const db=read(),weight=+db?.profile?.weight||80,min=$('#activityMin'),kcal=$('#activityKcal'),minL=$('#activityMinLabel'),est=$('#activityEstimate');
+ const db=read(),weight=+db?.profile?.weight||80,min=$('#activityMin'),kcal=$('#activityKcal'),minL=$('#activityMinLabel'),est=$('#activityEstimate'),dateInput=$('#activityDate');
  const sync=(auto=false)=>{const m=Math.max(1,+min.value||1);const estimate=burnEstimate(selected,m,weight);if(auto)kcal.value=estimate;minL.textContent=m;est.textContent=estimate+' kcal'};
  const choose=b=>{selected=b.dataset.actType;const type=TYPES.find(x=>x.name===selected)||TYPES[0];$$('[data-act-type]').forEach(x=>x.classList.toggle('on',x===b));$('#activityChosen').textContent=selected;$('#activitySub').textContent=type.sub;$('#activityChosenIcon').textContent=type.icon;sync(true);centerCardInCarousel(b)};
  $$('[data-act-type]').forEach(b=>b.onclick=()=>choose(b));
@@ -65,8 +76,10 @@ function bind(){
  $$('[data-step]').forEach(b=>b.onclick=()=>{min.value=Math.max(1,(+min.value||0)+(+b.dataset.delta||0));sync(true)});
  min.oninput=()=>sync(true);
  kcal.oninput=()=>{kcal.value=Math.max(0,+kcal.value||0)};
- $('#activitySave').onclick=()=>{const db=read();db.activities=Array.isArray(db.activities)?db.activities:[];const n=new Date();db.activities.push({id:uid(),type:selected,duration:Math.max(1,+min.value||1),kcal:Math.max(0,+kcal.value||0),date:$('#activityDate').value||today(),time:`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`,source:'manual'});write(db);refresh()};
- $$('[data-del-act]').forEach(b=>b.onclick=()=>{const db=read(),id=b.dataset.delAct;db.activities=(db.activities||[]).filter(x=>String(x.id)!==String(id));write(db);refresh()});
+ dateInput.onchange=()=>{$('#activityHistory').innerHTML=historyHtml(read(),dateInput.value||today());bindHistoryDelete()};
+ $('#activityHistoryAll').onclick=openFullHistory;
+ $('#activitySave').onclick=()=>{const db=read();db.activities=Array.isArray(db.activities)?db.activities:[];const n=new Date();db.activities.push({id:uid(),type:selected,duration:Math.max(1,+min.value||1),kcal:Math.max(0,+kcal.value||0),date:dateInput.value||today(),time:`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`,source:'manual'});write(db);refresh()};
+ bindHistoryDelete();
 }
 function refresh(){const s=$('#activityScreen');if(!s)return;s.dataset.activityRedesign='';render()}
 const obs=new MutationObserver(()=>{const s=$('#activityScreen');if(s&&s.classList.contains('active')&&s.dataset.activityRedesign!=='1')requestAnimationFrame(render)});obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});window.addEventListener('DOMContentLoaded',()=>setTimeout(render,400));setTimeout(render,800);

@@ -50,12 +50,18 @@ function render(){
  bind();
 }
 
+function centerCardInCarousel(card){
+ const track=$('.activity-types');if(!track||!card)return;
+ const left=card.offsetLeft-(track.clientWidth-card.offsetWidth)/2;
+ track.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+}
+
 function bind(){
  const db=read(),weight=+db?.profile?.weight||80,min=$('#activityMin'),kcal=$('#activityKcal'),minL=$('#activityMinLabel'),est=$('#activityEstimate');
  const sync=(auto=false)=>{const m=Math.max(1,+min.value||1);const estimate=burnEstimate(selected,m,weight);if(auto)kcal.value=estimate;minL.textContent=m;est.textContent=estimate+' kcal'};
- const choose=b=>{selected=b.dataset.actType;const type=TYPES.find(x=>x.name===selected)||TYPES[0];$$('[data-act-type]').forEach(x=>x.classList.toggle('on',x===b));$('#activityChosen').textContent=selected;$('#activitySub').textContent=type.sub;$('#activityChosenIcon').textContent=type.icon;sync(true);b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})};
+ const choose=b=>{selected=b.dataset.actType;const type=TYPES.find(x=>x.name===selected)||TYPES[0];$$('[data-act-type]').forEach(x=>x.classList.toggle('on',x===b));$('#activityChosen').textContent=selected;$('#activitySub').textContent=type.sub;$('#activityChosenIcon').textContent=type.icon;sync(true);centerCardInCarousel(b)};
  $$('[data-act-type]').forEach(b=>b.onclick=()=>choose(b));
- $('#activityChange').onclick=()=>{$('.activity-types')?.scrollIntoView({behavior:'smooth',block:'nearest'})};
+ $('#activityChange').onclick=()=>{const active=$('[data-act-type].on');centerCardInCarousel(active)};
  $$('[data-step]').forEach(b=>b.onclick=()=>{min.value=Math.max(1,(+min.value||0)+(+b.dataset.delta||0));sync(true)});
  min.oninput=()=>sync(true);
  kcal.oninput=()=>{kcal.value=Math.max(0,+kcal.value||0)};

@@ -16,8 +16,6 @@ function write(db){localStorage.setItem('onyx_v01',JSON.stringify(db));document.
 function today(){return new Date().toISOString().slice(0,10)}
 function burnEstimate(type,min,weight){const met=TYPES.find(x=>x.name===type)?.met||5;return Math.max(0,Math.round(met*3.5*(+weight||80)/200*(+min||0)))}
 function todays(db){return (Array.isArray(db.activities)?db.activities:[]).filter(x=>x.date===today())}
-function dayStats(db){const arr=todays(db);return{count:arr.length,min:arr.reduce((a,x)=>a+(+x.duration||+x.minutes||0),0),kcal:arr.reduce((a,x)=>a+(+x.kcal||0),0)}}
-function fmtDuration(min){const m=Math.max(0,+min||0);if(m<60)return `${m} min`;return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`}
 function activityIcon(type){return TYPES.find(x=>x.name===type)?.icon||'⚡'}
 function uid(){return crypto.randomUUID?.()||String(Date.now()+Math.random())}
 
@@ -30,16 +28,10 @@ function historyHtml(db){
 function render(){
  const s=$('#activityScreen');if(!s||s.dataset.activityRedesign==='1')return;
  s.dataset.activityRedesign='1';
- const db=read(),d=dayStats(db),w=+db?.profile?.weight||80,goal=800,goalPct=Math.min(100,Math.round((d.kcal/goal)*100));
+ const db=read(),w=+db?.profile?.weight||80;
  const initial=burnEstimate(selected,45,w);
- s.innerHTML=`<div class="activity-app">
+ s.innerHTML=`<div class="activity-app activity-app-compact">
   <div class="activity-topbar"><button class="activity-back" type="button" data-nav="home">‹</button><div><h1>DÉPENSES <span>QUOTIDIENNES</span></h1><button class="activity-date-label" type="button">AUJOURD'HUI⌄</button></div><label class="activity-calendar">▣<input id="activityDate" type="date" value="${today()}"></label></div>
-
-  <section class="activity-kpis">
-   <div class="activity-kpi"><i>⚡</i><div><span>ACTIVITÉS</span><b>${d.count}</b><em>Objectif : 5</em></div><div class="kpi-track"><u style="width:${Math.min(100,d.count/5*100)}%"></u></div></div>
-   <div class="activity-kpi"><i>◷</i><div><span>DURÉE TOTALE</span><b>${fmtDuration(d.min)}</b><em>Objectif : 2h00</em></div><div class="kpi-track"><u style="width:${Math.min(100,d.min/120*100)}%"></u></div></div>
-   <div class="activity-kpi"><i>🔥</i><div><span>KCAL DÉPENSÉES</span><b>${Math.round(d.kcal)}</b><em>Objectif : ${goal} kcal</em></div><div class="kpi-track"><u style="width:${goalPct}%"></u></div>${goalPct>=100?'<mark>🔥 OBJECTIF ATTEINT</mark>':''}</div>
-  </section>
 
   <section class="activity-picker-wrap"><div class="section-title"><i>⚡</i><div><b>AJOUTER UNE ACTIVITÉ</b><span>Choisis ton activité</span></div></div><div class="activity-types">${TYPES.map(t=>`<button class="activity-type ${t.name===selected?'on':''}" data-act-type="${t.name}"><div class="activity-image"><img src="${t.asset}" alt="Onyx ${t.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="fallback">${t.icon}</span></div><div class="activity-type-label"><span>${t.icon}</span><b>${t.name}</b></div></button>`).join('')}</div><div class="carousel-dots">${TYPES.slice(0,4).map((_,i)=>`<i class="${i===2?'on':''}"></i>`).join('')}</div></section>
 

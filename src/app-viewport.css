@@ -1,0 +1,48 @@
+/* ONYX FIT — viewport-first mobile layout */
+:root{--top-h:56px;--nav-h:76px}
+body{overflow:hidden}
+main{height:calc(100dvh - var(--top-h) - var(--nav-h));max-width:760px;overflow:hidden;padding:8px 8px 4px}
+.screen.active{height:100%;overflow:hidden;padding-bottom:0}
+.screen.active>.eyebrow,.screen.active>h1{flex:0 0 auto}
+
+/* Shared compact page shell */
+.page-hero{padding:12px 14px!important;border-radius:20px!important;margin-bottom:8px!important}
+.page-hero h1{font-size:1.38rem!important;margin:.2rem 0!important}.page-sub{font-size:.72rem!important;line-height:1.25}
+.hero-stats{gap:6px!important;margin-top:10px!important}.hero-stat{padding:8px!important;border-radius:12px!important}.hero-stat span{font-size:.52rem!important}.hero-stat b{font-size:.9rem!important}.hero-stat em{font-size:.58rem!important}
+.card{margin:6px 0!important;padding:10px!important}
+
+/* Home: dashboard fits in one viewport, secondary blocks become horizontal */
+#homeScreen{display:none;overflow:hidden}#homeScreen.active{display:flex;flex-direction:column;gap:6px}
+#homeScreen>.hero.card{min-height:0;flex:0 0 auto;padding:11px!important;grid-template-columns:1.35fr .65fr}
+#homeScreen>.hero.card h1{font-size:1.35rem;margin:.15rem 0 .35rem}.hero .mascot{min-height:90px}.hero .onyx-art{width:min(130px,34vw)!important}
+.home-dashboard{display:grid;grid-template-columns:1.25fr .75fr;gap:7px;margin:0!important;min-height:0;flex:1}
+.home-dashboard>.page-hero,.home-progress-card{margin:0!important;min-height:0}.home-dashboard>.page-hero{display:flex;flex-direction:column}.home-dashboard .hero-stats{grid-template-columns:1fr 1fr!important;margin-top:auto!important}.home-progress-card{display:flex;flex-direction:column;justify-content:center;padding:11px!important}
+#homeScreen>.card:last-child{flex:0 0 auto;margin:0!important}.macro{grid-template-columns:repeat(4,1fr)!important;gap:5px!important}.macro>div{padding:7px!important}.macro span{font-size:.55rem!important}.macro strong{font-size:.9rem}
+
+/* Workout: session choices horizontal, no endless vertical list */
+#workoutScreen.active{display:flex;flex-direction:column;overflow:hidden}.workout-overview{flex:0 0 auto;margin-bottom:6px!important}.workout-overview .hero-stats{grid-template-columns:repeat(3,1fr)!important}
+#workoutBox{min-height:0;overflow:hidden;display:flex;flex-direction:column;flex:1}
+#workoutBox>.card{min-height:0;overflow:auto;overscroll-behavior:contain}
+.session-choice-list{display:flex!important;overflow-x:auto!important;overflow-y:hidden!important;gap:8px!important;scroll-snap-type:x mandatory;padding:2px 2px 8px!important}.session-choice{flex:0 0 min(82vw,420px);scroll-snap-align:start;min-height:84px!important}
+.training-tabs{position:static!important;flex:0 0 auto}.exercise{min-height:0!important;overflow:auto;padding-bottom:78px!important}
+
+/* Nutrition: viewport-first with horizontal collections */
+#foodScreen.active{display:block;overflow:hidden}.nut-shell{height:100%;overflow:auto;overscroll-behavior:contain;padding-bottom:6px!important;scrollbar-width:none}.nut-shell::-webkit-scrollbar{display:none}
+.nut-head{margin-bottom:2px}.nut-head h1{font-size:1.3rem;margin:.1rem 0 .35rem}.nutrition-overview{margin-bottom:6px!important}.nutrition-overview .hero-stats{grid-template-columns:repeat(3,1fr)!important}
+.nut-balance{padding:10px!important}.nut-ring{width:86px!important;height:86px!important}.nut-ring strong{font-size:1.1rem!important}.nut-equation{grid-template-columns:repeat(4,1fr)!important;gap:5px!important;margin-top:8px!important}.nut-equation div{padding:6px!important}.nut-macros{gap:5px!important;margin-top:6px!important}.nut-macro{padding:7px!important}
+.quick-grid{display:flex!important;overflow-x:auto;overflow-y:hidden;gap:7px!important;scroll-snap-type:x mandatory;padding-bottom:4px}.quick-food{flex:0 0 76%;min-height:68px!important;scroll-snap-align:start}
+.meal-card{display:inline-block;vertical-align:top;width:82%;margin-right:7px!important}.card:has(.meal-card){white-space:nowrap;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory}.card:has(.meal-card)>.meal-title{position:sticky;left:0}.meal-card{white-space:normal;scroll-snap-align:start}
+
+/* Profile: tabs behave as real sub-pages, not a long scrolling page */
+#profileScreen.active{display:flex;flex-direction:column;overflow:hidden}.profile-overview{flex:0 0 auto;margin-bottom:6px!important}.profile-tabs{position:static!important;flex:0 0 auto;overflow:hidden!important;margin-bottom:6px!important}.profile-tabs .chip{min-width:0!important;font-size:.75rem;padding:9px 5px!important}
+#profileBox{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;scrollbar-width:none}#profileBox::-webkit-scrollbar{display:none}.profile-info-redesign{gap:7px!important}.profile-info-card{padding:10px!important}.profile-info-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}.profile-info-grid label{padding:7px!important}.profile-info-grid input,.profile-info-grid select{min-height:40px;padding:8px!important}
+
+/* Activity and stats screens */
+#activityScreen.active{display:flex;flex-direction:column;overflow:hidden}#activityScreen>.card:last-child{min-height:0;overflow:auto}
+
+@media(max-width:430px){
+ .home-dashboard{grid-template-columns:1fr 1fr}.home-progress-head{display:block!important}.home-progress-head>span{display:none}.home-mini-row{grid-template-columns:62px 1fr auto!important}.home-mini-row span,.home-mini-row strong{font-size:.58rem!important}
+ .macro>div{font-size:.58rem}.hero-stat b{font-size:.84rem!important}.page-sub{display:none}
+ .profile-info-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-height:740px){.page-sub{display:none}.page-hero{padding:9px 11px!important}.hero-stats{margin-top:6px!important}.hero .mascot{min-height:70px}.home-mini-bars{gap:5px!important}.card{padding:8px!important}}

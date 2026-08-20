@@ -40,8 +40,8 @@ function render(){
    <div class="entry-rule"></div>
    <div class="entry-line"><div class="line-icon">◷</div><div class="line-copy"><b>DURÉE</b><span>Ajuste ta durée d’activité</span></div><div class="line-stepper"><button data-step="min" data-delta="-5">−</button><strong><span id="activityMinLabel">45</span><small>min</small></strong><input id="activityMin" type="number" value="45" min="1"><button data-step="min" data-delta="5">+</button></div></div>
    <div class="entry-rule"></div>
-   <div class="entry-line"><div class="line-icon">🔥</div><div class="line-copy"><b>KCAL ESTIMÉES</b><span>Basé sur ton poids (${Math.round(w)} kg)</span></div><div class="kcal-value"><strong id="activityKcalLabel">${initial}</strong><span>kcal</span><input id="activityKcal" type="number" value="${initial}" min="0"></div><button class="activity-edit-kcal" type="button" id="activityEditKcal">✎ MODIFIER</button></div>
-   <div class="activity-estimate">Estimation ONYX : <b id="activityEstimate">${initial} kcal</b> · tu peux modifier si tu as une montre ou une machine.</div>
+   <div class="entry-line kcal-line"><div class="line-icon">🔥</div><div class="line-copy"><b>KCAL</b><span>Estimation selon ton poids (${Math.round(w)} kg), modifiable</span></div><label class="kcal-inline"><input id="activityKcal" inputmode="numeric" type="number" value="${initial}" min="0" aria-label="Calories dépensées"><span>kcal</span></label></div>
+   <div class="activity-estimate">Estimation ONYX : <b id="activityEstimate">${initial} kcal</b> · remplace-la directement par la valeur de ta montre si besoin.</div>
    <button class="activity-save" id="activitySave">＋ AJOUTER CETTE ACTIVITÉ</button>
   </section>
 
@@ -51,14 +51,14 @@ function render(){
 }
 
 function bind(){
- const db=read(),weight=+db?.profile?.weight||80,min=$('#activityMin'),kcal=$('#activityKcal'),minL=$('#activityMinLabel'),kcalL=$('#activityKcalLabel'),est=$('#activityEstimate');
- const sync=(auto=false)=>{const m=Math.max(1,+min.value||1);if(auto)kcal.value=burnEstimate(selected,m,weight);minL.textContent=m;kcalL.textContent=Math.max(0,Math.round(+kcal.value||0));est.textContent=burnEstimate(selected,m,weight)+' kcal'};
+ const db=read(),weight=+db?.profile?.weight||80,min=$('#activityMin'),kcal=$('#activityKcal'),minL=$('#activityMinLabel'),est=$('#activityEstimate');
+ const sync=(auto=false)=>{const m=Math.max(1,+min.value||1);const estimate=burnEstimate(selected,m,weight);if(auto)kcal.value=estimate;minL.textContent=m;est.textContent=estimate+' kcal'};
  const choose=b=>{selected=b.dataset.actType;$$('[data-act-type]').forEach(x=>x.classList.toggle('on',x===b));$('#activityChosen').textContent=selected;$('#activitySub').textContent=TYPES.find(x=>x.name===selected)?.sub||'';sync(true);b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})};
  $$('[data-act-type]').forEach(b=>b.onclick=()=>choose(b));
  $('#activityChange').onclick=()=>{$('.activity-types')?.scrollIntoView({behavior:'smooth',block:'nearest'})};
- $$('[data-step]').forEach(b=>b.onclick=()=>{const input=b.dataset.step==='min'?min:kcal;input.value=Math.max(b.dataset.step==='min'?1:0,(+input.value||0)+(+b.dataset.delta||0));sync(b.dataset.step==='min')});
- min.oninput=()=>sync(true);kcal.oninput=()=>sync(false);
- $('#activityEditKcal').onclick=()=>{kcal.classList.toggle('show');if(kcal.classList.contains('show'))kcal.focus()};
+ $$('[data-step]').forEach(b=>b.onclick=()=>{min.value=Math.max(1,(+min.value||0)+(+b.dataset.delta||0));sync(true)});
+ min.oninput=()=>sync(true);
+ kcal.oninput=()=>{kcal.value=Math.max(0,+kcal.value||0)};
  $('#activitySave').onclick=()=>{const db=read();db.activities=Array.isArray(db.activities)?db.activities:[];const n=new Date();db.activities.push({id:uid(),type:selected,duration:Math.max(1,+min.value||1),kcal:Math.max(0,+kcal.value||0),date:$('#activityDate').value||today(),time:`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`,source:'manual'});write(db);refresh()};
  $$('[data-del-act]').forEach(b=>b.onclick=()=>{const db=read(),id=b.dataset.delAct;db.activities=(db.activities||[]).filter(x=>String(x.id)!==String(id));write(db);refresh()});
 }

@@ -1,4 +1,5 @@
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let scheduled=false;
 
 function injectStyle(){
  if($('#profileSimplifyStyle'))return;
@@ -15,11 +16,12 @@ function injectStyle(){
 function normalizeTabs(){
  const tabs=$('.profile-tabs');if(!tabs)return;
  const info=tabs.querySelector('[data-tab="info"]'),equipment=tabs.querySelector('[data-tab="equipment"]'),program=tabs.querySelector('[data-tab="program"]');
- if(info)info.textContent='Profil';
- if(equipment)equipment.textContent='Matériel';
- if(program)program.textContent='Programme';
- $('#programEditTab')?.setAttribute('aria-hidden','true');
- $('#accountTab')?.setAttribute('aria-hidden','true');
+ if(info&&info.textContent!=='Profil')info.textContent='Profil';
+ if(equipment&&equipment.textContent!=='Matériel')equipment.textContent='Matériel';
+ if(program&&program.textContent!=='Programme')program.textContent='Programme';
+ const edit=$('#programEditTab'),account=$('#accountTab');
+ if(edit&&edit.getAttribute('aria-hidden')!=='true')edit.setAttribute('aria-hidden','true');
+ if(account&&account.getAttribute('aria-hidden')!=='true')account.setAttribute('aria-hidden','true');
 }
 
 function addProfileAccountAction(){
@@ -39,11 +41,17 @@ function addProgramAction(){
 }
 
 function syncVisibleActive(){
- const info=$('[data-tab="info"]'),program=$('[data-tab="program"]');
- if($('#accountTab')?.classList.contains('on')){ $$('.profile-tabs .chip').forEach(x=>x.classList.remove('on'));info?.classList.add('on'); }
- if($('#programEditTab')?.classList.contains('on')){ $$('.profile-tabs .chip').forEach(x=>x.classList.remove('on'));program?.classList.add('on'); }
+ const info=$('[data-tab="info"]'),program=$('[data-tab="program"]'),account=$('#accountTab'),edit=$('#programEditTab');
+ if(account?.classList.contains('on')){
+   if(!info?.classList.contains('on')){$$('.profile-tabs .chip.on').forEach(x=>x.classList.remove('on'));info?.classList.add('on')}
+ }
+ if(edit?.classList.contains('on')){
+   if(!program?.classList.contains('on')){$$('.profile-tabs .chip.on').forEach(x=>x.classList.remove('on'));program?.classList.add('on')}
+ }
 }
 
-function run(){injectStyle();normalizeTabs();syncVisibleActive();requestAnimationFrame(()=>{addProfileAccountAction();addProgramAction()})}
-const obs=new MutationObserver(run);obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-window.addEventListener('DOMContentLoaded',()=>setTimeout(run,250));setTimeout(run,500);
+function run(){scheduled=false;injectStyle();normalizeTabs();syncVisibleActive();addProfileAccountAction();addProgramAction()}
+function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(run)}
+const obs=new MutationObserver(schedule);
+obs.observe(document.documentElement,{childList:true,subtree:true});
+window.addEventListener('DOMContentLoaded',()=>setTimeout(schedule,250));setTimeout(schedule,500);

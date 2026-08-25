@@ -5,6 +5,47 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#080808" />
   <title>ONYX FIT</title>
+  <script>
+    // ONYX FIT boot guard — keep the full app, but prevent stale/corrupt browser
+    // storage from stopping main.js before the first render.
+    (() => {
+      try {
+        const key = 'onyx_v01';
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('invalid state');
+          } catch (error) {
+            try { localStorage.setItem('onyx_v01_corrupt_backup', raw); } catch (_) {}
+            localStorage.removeItem(key);
+            console.warn('ONYX FIT: invalid local state repaired before boot', error);
+          }
+        }
+      } catch (error) {
+        console.warn('ONYX FIT: local storage unavailable', error);
+      }
+
+      // Compatibility fallback for browsers that do not expose structuredClone.
+      if (typeof window.structuredClone !== 'function') {
+        window.structuredClone = value => JSON.parse(JSON.stringify(value));
+      }
+
+      // Never leave a completely blank page if a browser-specific runtime error occurs.
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const app = document.getElementById('app');
+          if (app && !app.children.length) {
+            app.innerHTML = '<div style="min-height:100vh;display:grid;place-items:center;background:#080808;color:#fff;font-family:system-ui;padding:24px;text-align:center"><div><b style="font-size:22px">ONYX <span style="color:#ff6500">FIT</span></b><p style="color:#aaa;line-height:1.5">Le démarrage a rencontré un problème local sur ce navigateur.</p><button id="onyxBootRepair" style="border:0;border-radius:12px;padding:12px 18px;background:#ff6500;color:#fff;font-weight:800">RÉPARER ET RELANCER</button></div></div>';
+            document.getElementById('onyxBootRepair')?.addEventListener('click', () => {
+              try { localStorage.removeItem('onyx_v01'); sessionStorage.clear(); } catch (_) {}
+              location.reload();
+            });
+          }
+        }, 4500);
+      });
+    })();
+  </script>
 </head>
 <body><div id="app"></div><script type="module" src="/src/main.js"></script><script type="module" src="/src/program-engine.js"></script><script type="module" src="/src/program-naming.js"></script><script type="module" src="/src/exercise-library.js"></script><script type="module" src="/src/program-generator-v2.js"></script><script type="module" src="/src/program-editor.js"></script><script type="module" src="/src/onyx-visuals.js"></script><script type="module" src="/src/training-engine-v2.js"></script><script type="module" src="/src/technique-library-ui.js"></script><script type="module" src="/src/training-durable.js"></script><script type="module" src="/src/workout-autosave.js"></script><script type="module" src="/src/progress-dashboard.js"></script><script type="module" src="/src/account-cloud.js"></script><script type="module" src="/src/cloud-autosync.js"></script><script type="module" src="/src/training-stop.js"></script><script type="module" src="/src/nutrition-v01.js"></script><script type="module" src="/src/nutrition-scan-ui.js"></script><script type="module" src="/src/barcode-scanner.js"></script><script type="module" src="/src/onyx-context.js"></script><script type="module" src="/src/ux-polish.js"></script><script type="module" src="/src/page-redesign.js"></script><script type="module" src="/src/app-viewport.js"></script><script type="module" src="/src/activity-redesign.js"></script><script type="module" src="/src/navigation-cleanup.js"></script><script type="module" src="/src/profile-simplify.js"></script><script type="module" src="/src/weight-tracking.js"></script></body>
 </html>
